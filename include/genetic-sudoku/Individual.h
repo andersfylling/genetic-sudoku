@@ -67,6 +67,22 @@ class Individual {
       this->genes[i] = secondDonor[i];
     }
 
+    // crossover step 2
+    for (uint8_t i = 0; i < N*N*N*N; i++) {
+      std::random_device rd;
+      std::mt19937 rng(rd());
+      std::uniform_int_distribution<int> uni(0, 17);
+
+      this->genes[i] = uni(rng) == 3 ? firstDonor[i] : this->genes[i];
+    }
+    for (uint8_t i = 0; i < N*N*N*N; i++) {
+      std::random_device rd;
+      std::mt19937 rng(rd());
+      std::uniform_int_distribution<int> uni(0, 67);
+
+      this->genes[i] = uni(rng) == 5 ? secondDonor[i] : this->genes[i];
+    }
+
     // Mutation. TODO-Mutation: blæh
 
     int rrr = 0;

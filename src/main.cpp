@@ -3,7 +3,7 @@
 
 int main () {
 
-  Population<400, 3, 2> population{};
+  Population<400, 3, 7> population{};
   int best = 0;
 
   int n = 0;
