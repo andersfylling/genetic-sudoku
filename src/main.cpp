@@ -3,7 +3,11 @@
 
 int main () {
 
-  Population<1, 3> population{};
+  Population population{};
+
+  const auto fittest = population.getFittest();
+  fittest.print();
+  std::cout << fittest.getFitness() << std::endl;
 
   return 0;
 }

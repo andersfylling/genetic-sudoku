@@ -9,7 +9,7 @@
 // Local dependencies
 #include <genetic-sudoku/utils.h>
 
-template<unsigned int N> // N^4 board
+template<unsigned int N = 3, unsigned int R = 17> // N^4 board, nr of squares to complete
 class Individual {
 
  public:
@@ -18,12 +18,22 @@ class Individual {
    */
   Individual ()
   {
-    for (uint8_t i = 0; i < N*N*N*N; i++) {
-      std::random_device rd;
-      std::mt19937 rng(rd());
-      std::uniform_int_distribution<int> uni(0, N*N);
+    for (int i = 0; i < R; i++) {
+      int index = 0;
+      {
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        std::uniform_int_distribution<int> uni(0, N * N * N * N);
 
-      this->genes[i] = static_cast<uint8_t>(uni(rng));
+        index = static_cast<uint8_t>(uni(rng));
+      }
+      {
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        std::uniform_int_distribution<int> uni(1, N * N);
+
+        this->genes[index] = static_cast<uint8_t>(uni(rng));
+      }
     }
   }
 
@@ -70,9 +80,78 @@ class Individual {
     this->genes[index] = gene;
   }
 
-  int getFitness()
+  int getFitness() const
   {
+    const int score_anotherSequenceValue = 67; // when looking for duplicates, but the matching value doesnt match, but > 0.
+    const int score_duplicate = -1000;
+    const int score_noValue = 3;
+
+    int score = 0;
     // TODO-fitness: find a way to calculate the fitness. higher score per possible position? bonus points?
+
+    // verify that there aren't any crash
+    for (auto i = 0; i < N*N*N*N; i++) {
+      score += 1;
+
+      const auto gene = this->genes[i];
+      if (gene > 0) {
+        score += 23;
+        // for every active gene, check its vertical, horizontal and subboard for duplicates.
+
+        // vertical
+        for (auto c = this->getCol(i); c < N*N*N*N; c += N*N) {
+          if (c == i) {
+            continue;
+          }
+
+          if (gene == this->genes[c]) {
+            score += score_duplicate;
+          }
+          else if (this->genes[c] > 0) {
+            score += score_anotherSequenceValue;
+          }
+          else {
+            score += score_noValue;
+          }
+        }
+
+        // horizontal
+        for (auto r = i; r - i < 9; r += 1) {
+          if (r == i) {
+            continue;
+          }
+
+          if (gene == this->genes[r]) {
+            score += score_duplicate;
+          }
+          else if (this->genes[r] > 0) {
+            score += score_anotherSequenceValue;
+          }
+          else {
+            score += score_noValue;
+          }
+        }
+
+        // sub board
+        for (auto j = this->getSubBoardCorner(i); j < N*N*N*N; j += (j + 1) % N == 0 ? N*N - N - 1 : 1) {
+          if (j == i) {
+            continue;
+          }
+
+          if (gene == this->genes[j]) {
+            score += score_duplicate;
+          }
+          else if (this->genes[j] > 0) {
+            score += score_anotherSequenceValue;
+          }
+          else {
+            score += score_noValue;
+          }
+        }
+      }
+    }
+
+    return score;
   }
 
   // create a unique id for this solution, based on the genes.
@@ -131,7 +210,7 @@ class Individual {
       }
       else {
         // print the line
-        board += "\n ┣";
+        board += "\n ┠";
         for (auto j = 0; (j + 1) < N*N; j++) {
           board += (j + 1) % N == 0 ? "───╂" : "───┼";
         }
@@ -194,6 +273,22 @@ class Individual {
   constexpr uint8_t getCol(const unsigned int index) const
   {
     return index % (N*N);
+  }
+
+  constexpr unsigned int getIndex(const unsigned int row, const unsigned int col) const
+  {
+    return row * N + col;
+  }
+
+  /**
+   * get the index of the first square in a sub board, given a index.
+   * up left corner of a sub board is the first one.
+   *
+   * @return
+   */
+  constexpr unsigned int getSubBoardCorner (const unsigned int index) const
+  {
+    return this->getIndex((this->getRow(index) - 1) / N, (this->getCol(index) - 1) / N);
   }
 
  private:
