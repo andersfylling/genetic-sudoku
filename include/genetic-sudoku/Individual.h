@@ -68,12 +68,43 @@ class Individual {
     }
 
     // Mutation. TODO-Mutation: blæh
+
+    int rrr = 0;
+    {
+      std::random_device rd;
+      std::mt19937 rng(rd());
+      std::uniform_int_distribution<int> uni(0, N * N);
+
+      rrr = static_cast<uint8_t>(uni(rng));
+    }
+    for (int i = 0; i < rrr; i++) {
+      int index = 0;
+      {
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        std::uniform_int_distribution<int> uni(0, N * N * N * N);
+
+        index = static_cast<uint8_t>(uni(rng));
+      }
+      {
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        std::uniform_int_distribution<int> uni(1, N * N);
+
+        this->genes[index] = static_cast<uint8_t>(uni(rng));
+      }
+    }
   }
 
   uint8_t getGene(const unsigned int index) const
   {
     return this->genes[index];
   }
+
+  std::array<uint8_t, N*N*N*N> getGeneSequence() const
+  {
+    return this->genes;
+  };
 
   void setGene(const unsigned int index, const uint8_t gene)
   {
@@ -82,8 +113,8 @@ class Individual {
 
   int getFitness() const
   {
-    const int score_anotherSequenceValue = 67; // when looking for duplicates, but the matching value doesnt match, but > 0.
-    const int score_duplicate = -1000;
+    const int score_anotherSequenceValue = 167; // when looking for duplicates, but the matching value doesnt match, but > 0.
+    const int score_duplicate = -10000;
     const int score_noValue = 3;
 
     int score = 0;
