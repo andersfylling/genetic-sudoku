@@ -15,7 +15,10 @@ class Population {
     Individual<N, R> fittest = p.getIndividual(0);
 
     for (auto i = 0; i < M; i++) {
-      if (fittest.getFitness() < 0 || fittest.getFitness() < this->getIndividual(i).getFitness()) {
+      if (p.getIndividual(i).isDead()) {
+        continue;
+      }
+      if (fittest.getFitness() < p.getIndividual(i).getFitness() || p.getIndividual(i).getFitness() > 8000) {
         std::random_device rd;
         std::mt19937 rng(rd());
         std::uniform_int_distribution<int> uni(1, N * N * N * N - 1);
@@ -40,7 +43,10 @@ class Population {
     Individual<N, R> fittest = this->getIndividual(0);
 
     for (auto i = 1; i < N*N*N*N; i++) {
-      if (fittest.getFitness() < this->getIndividual(i).getFitness()) {
+      if (this->getIndividual(i).getFitness() < -40000) {
+        this->getIndividual(i).kill();
+      }
+      if (fittest.getFitness() < this->getIndividual(i).getFitness() && !this->getIndividual(i).isDead()) {
         fittest = this->getIndividual(i);
       }
     }

@@ -276,6 +276,16 @@ class Individual {
     std::cout << board << std::endl;
   }
 
+  bool isDead() const
+  {
+    return this->dead;
+  }
+
+  void kill()
+  {
+    this->dead = true;
+  }
+
 
   // Constexpr
   /**
@@ -340,5 +350,6 @@ class Individual {
 
  private:
   std::array<uint8_t, N*N*N*N> genes{};
+  bool dead{false};
 
 };
